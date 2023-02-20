@@ -1,8 +1,6 @@
 ipykernel == 6.13.1
-numpy == 1.23.3
-pandas == 1.4.4
-opencv-python == 4.6.0.66
 matplotlib == 3.6.3
+Pillow == 9.2.0
 
 --extra-index-url https://download.pytorch.org/whl/cu116
 torch 
