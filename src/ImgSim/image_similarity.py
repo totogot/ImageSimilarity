@@ -13,12 +13,55 @@ import torchvision.transforms as transforms
 
 class Img2Vec():
 
-    def __init__(self, model_name):
+    def __init__(self, model_name, weights='DEFAULT'):
+
+        # dictionary defining the supported embeddings
+        self.embed_dict = {
+            "resnet50": self.obtain_children,
+            "vgg19":  self.obtain_classifier,
+            "efficientnet_b0": self.obtain_classifier
+            }
+        
+        # assign class parameters
+        self.architecture = self.validate_model(model_name)
+        self.weights = weights
+        self.transform = self.assign_transform(weights)
         self.device = self.set_device()
-        self.architecture = model_name
         self.model = self.initiate_model()
         self.embed = self.assign_layer()
         self.dataset = {}
+
+    
+    def validate_model(self, model_name):
+        if model_name not in self.embed_dict.keys():
+            raise ValueError(f'The model {model_name} is not supported')
+        else:
+            return model_name
+
+    
+    def assign_transform(self, weights):
+       
+        weights_dict = {
+            "resnet50": models.ResNet50_Weights,
+            "vgg19": models.VGG19_Weights,
+            "efficientnet_b0":models.EfficientNet_B0_Weights
+        }
+
+        try:
+            w = weights_dict[self.architecture]
+            weights = getattr(w, weights)
+            preprocess =  weights.transforms()
+        except:
+            preprocess = transforms.Compose([
+                transforms.Resize(224),
+                transforms.ToTensor(),
+                transforms.Normalize(
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225]
+                )
+                ])
+
+        return preprocess
 
     
     def set_device(self):
@@ -32,20 +75,15 @@ class Img2Vec():
     
     def initiate_model(self):
         
-        m = getattr(models, self.architecture) # equ to models.resnet50() 
-        model = m(weights='DEFAULT')
+        m = getattr(models, self.architecture) # equ to assigning m as models.resnet50() 
+        model = m(weights = self.weights) # equ to models.resnet50(weights = ...)
+        model.to(self.device)
         
-        return model.to(self.device)
+        return model.eval()
     
 
     def assign_layer(self):
-        embed_dict = {
-            "resnet50": self.obtain_children,
-            "vgg19":  self.obtain_classifier,
-            "efficientnet_b0": self.obtain_classifier
-        }
-
-        model_embed = embed_dict[self.architecture]()
+        model_embed = self.embed_dict[self.architecture]()
 
         return model_embed
     
@@ -60,21 +98,7 @@ class Img2Vec():
         self.model.classifier = self.model.classifier[:-1]
         
         return self.model
-    
-
-    def transform_img(self, img):
-
-        transform = transforms.Compose([
-            transforms.Resize(224),
-            transforms.ToTensor(),
-            transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
-            )
-            ])
-        
-        return transform(img)
-    
+      
 
     def directory_to_list(self, source):
 
@@ -110,7 +134,7 @@ class Img2Vec():
     def embed_image(self, img):
         
         img = Image.open(img)
-        img_trans = self.transform_img(img)
+        img_trans = self.transform(img)
 
         if self.device == "cuda:0":
             img_trans = img_trans.cuda()
@@ -127,6 +151,8 @@ class Img2Vec():
         for file in self.files:
             vector = self.embed_image(file)
             self.dataset[str(file)] = vector
+        
+        return
             
     
     def similar_images(self, target_file, n=None):
