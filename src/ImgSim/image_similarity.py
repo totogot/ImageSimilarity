@@ -1,11 +1,14 @@
 import torch
 import os
+import math
 
 import matplotlib.pyplot as plt
+import numpy as np
 import torch.nn as nn
 import torchvision.models as models
 import torchvision.transforms as transforms
 
+from kmeans_pytorch import kmeans
 from PIL import Image
 
 
@@ -58,6 +61,8 @@ class Img2Vec:
         self.model = self.initiate_model()
         self.embed = self.assign_layer()
         self.dataset = {}
+        self.image_clusters = {}
+        self.cluster_centers = {}
 
     def validate_model(self, model_name):
         if model_name not in self.embed_dict.keys():
@@ -191,8 +196,8 @@ class Img2Vec:
         # sort based on decreasing similarity
         items = sim_dict.items()
         sim_dict = {
-            k: v for k, v in sorted(items, key=lambda item: item[1], reverse=True)
-        }
+            k: v for k, v in sorted(items, key=lambda i: i[1], reverse=True)
+            }
 
         # cut to defined top n similar images
         if n is not None:
@@ -256,5 +261,47 @@ class Img2Vec:
                 + f'"{data["model"]}" model used to generate saved embeddings.'
                 + " Re-initiate Img2Vec with correct architecture and reload."
             )
+
+        return
+
+    def plot_list(self, img_list, cluster_num):
+        fig, axes = plt.subplots(math.ceil(len(img_list) / 2), 2)
+        fig.suptitle(f"Cluster: {str(cluster_num)}")
+        [ax.axis("off") for ax in axes.ravel()]
+
+        for img, ax in zip(img_list, axes.ravel()):
+            ax.imshow(Image.open(img))
+
+        fig.tight_layout()
+
+        return
+
+    def display_clusters(self):
+        for num in self.cluster_centers.keys():
+            # print(f'Displaying cluster: {str(cluster_num)}')
+
+            img_list = [k for k, v in self.image_clusters.items() if v == num]
+            self.plot_list(img_list, num)
+
+        return
+
+    def cluster_dataset(self, nclusters, dist="euclidean", display=False):
+        vecs = torch.stack(list(self.dataset.values())).squeeze()
+        imgs = list(self.dataset.keys())
+        np.random.seed(100)
+
+        cluster_ids_x, cluster_centers = kmeans(
+            X=vecs, num_clusters=nclusters, distance=dist, device=self.device
+        )
+
+        # assign clusters to images
+        self.image_clusters = dict(zip(imgs, cluster_ids_x.tolist()))
+
+        # store cluster centres
+        cluster_num = list(range(0, len(cluster_centers)))
+        self.cluster_centers = dict(zip(cluster_num, cluster_centers.tolist()))
+
+        if display:
+            self.display_clusters()
 
         return

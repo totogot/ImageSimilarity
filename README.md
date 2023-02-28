@@ -14,7 +14,7 @@ The class itself can be found in the image_similarity.py module within the "ImgS
 The first thing you are going to want to do is to clone this repository.
 
 ```
-$ https://github.com/totogot/ImageSimilarity.git
+$ git clone https://github.com/totogot/ImageSimilarity.git
 ```
 
 Next, set up a virtual environment for installing all package requirements into.
