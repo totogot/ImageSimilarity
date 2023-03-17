@@ -1,11 +1,12 @@
 # Image Similarity
 
-This project looks at creating a general purpose class (Img2Vec) for assessing image similarity. 
+This project looks at creating a simple class for assessing image similarity. 
 The approach taken looks to embed images by extracting the final layer feature embeddings from 
-pretrained neural networks, before comparing similarity between two images based on Cosine distance.
+pretrained convolution neural networks, before comparing similarity between two images based on Cosine distance.
 
-The class has been written to accomodate some standard neural network architectures, supported by in
-Pytorch's torchvision library. At time of publishing these include: resnet50, vgg19, and efficientnet_b0
+The class has been written to accomodate some standard neural network architectures, supported by Pytorch's 
+torchvision library. At time of publishing these include: resnet50, vgg19, and efficientnet_b0. However, the class 
+has deliberately been written in a modular way to accommodate the easy addition of other networks as required.
 
 The main.ipynb contains a brief demonstration of how to utilise the Img2Vec class functionality. 
 The class itself can be found in the image_similarity.py module within the "ImgSim" package directory.
@@ -35,6 +36,11 @@ $ pip install .
 This last command will install all dependencies outlined in the setup.cfg file. ipykernel has been included to enable the main.ipynb to be run also and for relevant visualisations to be outputted also.
 
 Note: for IDEs where the CLI uses PowerShell by default (e.g. VS Code), in order to run Activate.ps1 you may find that you first need to update your settings such that Command Prompt is the default terminal shell - see here: https://support.enthought.com/hc/en-us/articles/360058403072-Windows-error-activate-ps1-cannot-be-loaded-because-running-scripts-is-disabled-UnauthorizedAccess-
+
+
+## Usage
+For a step-by-step example of the functionality, see the "main.ipynb" file. 
+While full documentation can be found in code commentary contained within the "src/ImgSim/image_similarity.py" file
 
 
 ## Data
