@@ -33,6 +33,7 @@ class Img2Vec:
     Img2Vec.save_dataset(): save embedded dataset to file for future loading
     Img2Vec.load_dataset(): load previously embedded dataset of feature vectors
     Img2Vec.similar_image(): pass target image and return most similar image(s)
+    Img2Vec.cluster_dataset(): group embedded images into specified n clusters
 
     Example:
     -----------
@@ -43,6 +44,8 @@ class Img2Vec:
     ImgSim.save_dataset('[OUTPUT PATH FOR SAVING EMBEDDEDINGS]')
 
     ImgSim.similar_images('[EXAMPLE PATH TO TARGET IMAGE]')
+
+    ImgSim.cluster_dataset(nclusters=6, display=True)
     """
 
     def __init__(self, model_name, weights="DEFAULT"):
@@ -153,7 +156,7 @@ class Img2Vec:
         img = Image.open(img)
         img_trans = self.transform(img)
 
-        # store computational graph on GPU is available
+        # store computational graph on GPU if available
         if self.device == "cuda:0":
             img_trans = img_trans.cuda()
 
@@ -195,9 +198,7 @@ class Img2Vec:
 
         # sort based on decreasing similarity
         items = sim_dict.items()
-        sim_dict = {
-            k: v for k, v in sorted(items, key=lambda i: i[1], reverse=True)
-            }
+        sim_dict = {k: v for k, v in sorted(items, key=lambda i: i[1], reverse=True)}
 
         # cut to defined top n similar images
         if n is not None:

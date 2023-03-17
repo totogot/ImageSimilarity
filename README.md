@@ -38,12 +38,14 @@ Note: for IDEs where the CLI uses PowerShell by default (e.g. VS Code), in order
 
 
 ## Data
-For the purpose of demonstrating functionality I have included several test images (in this case flowers) 
-*DISCLAIMER: The images were sourced from the web, and I do not claim to hold any rights to copyrights or other forms of IP.
+For the purpose of demonstrating functionality I have included several test images (in this case of different furnitureitesm - tables, sofas, and shelves) 
+I curated the dataset to include 10 examples of each category (30 images in total). However, I structured each selected the 10 images in each category, such that there was two themes (with 5 images each). For example, within the "tables" category I included x5 images of coffee tables, and x5 images of dinner tables. 
 
-The folder structure is as follows:
-./data/flower_images/main_imgs = main directory of images that will be embedded to form the core dataset in which to search
-./data/flower_images/target_imgs = contains target images for which we will look to find most similar images in main dataset
+The purpose of this was to test whether the model could correctly identify the most similar images even within each category - the results can be seen in "main.ipynb" 
+
+*DISCLAIMER: 
+The images were sourced from the web, and I do not claim to hold any rights to copyrights or other forms of IP. 
+In fact, you could use Google's reverse image search to identify the sources of each image - try out image similarity in a real-world setting!
 
 
 ## Repository formatting
